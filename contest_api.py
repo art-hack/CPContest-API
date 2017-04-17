@@ -45,7 +45,7 @@ def fetch_codechef():
     statusdiv = soup.findAll("table", attrs = {"class": "dataTable"})
     headings = soup.findAll("h3")
     contest_tables = {"Future Contests": [], "Present Contests": []}
-    for i in xrange(len(headings)):
+    for i in range(len(headings)):
         if headings[i].text != "Past Contests":
             contest_tables[headings[i].text] = statusdiv[i].findAll("tr")[1:]
 
