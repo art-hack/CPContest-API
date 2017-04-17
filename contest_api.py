@@ -87,7 +87,7 @@ for item in data:
 
 
 
-# CodeForces contest Fetching
+# CodeForces Contest Fetching
 
 page = requests.get("http://codeforces.com/api/contest.list")
 data = page.json()["result"]
@@ -104,6 +104,41 @@ for item in data:
     else:
         resultSet["present_contests"].append({  "Name" :  item["name"] , "url" : "http://codeforces.com/contest/"+str(item["id"])  , "EndTime"   : end_time  ,"Platform":"CODEFORCES"  })
 
+
+
+# HackerRank Contest Fetching
+
+hackerrank_contests = {"urls":[]}
+cur_time = str(int(mktime(localtime())*1000))
+page = requests.get("https://www.hackerrank.com/rest/contests/upcoming?offset=0&limit=10&contest_slug=active&_="+cur_time)
+data = page.json()["models"]
+for item in data:
+    if not item["ended"] and ("https://www.hackerrank.com/"+item["slug"]) not in hackerrank_contests["urls"]:
+        start_time = strptime(item["get_starttimeiso"], "%Y-%m-%dT%H:%M:%SZ")
+        end_time = strptime(item["get_endtimeiso"], "%Y-%m-%dT%H:%M:%SZ")
+        duration = get_duration(int(( mktime(end_time)-mktime(start_time) )/60 ))
+        if not item["started"]:
+            hackerrank_contests["urls"].append("https://www.hackerrank.com/"+item["slug"])
+            resultSet["upcoming_contests"].append({ "Name" :  item["name"] , "url" : "https://www.hackerrank.com/"+item["slug"] , "StartTime" :  strftime("%a, %d %b %Y %H:%M", localtime(mktime(start_time)+19800)),"EndTime" : strftime("%a, %d %b %Y %H:%M", localtime(mktime(end_time)+19800)),"Duration":duration,"Platform":"HACKERRANK"  })
+        elif   item["started"]:
+            hackerrank_contests["urls"].append("https://www.hackerrank.com/"+item["slug"])
+            resultSet["present_contests"].append({  "Name" :  item["name"] , "url" : "https://www.hackerrank.com/"+item["slug"]  , "EndTime"   : strftime("%a, %d %b %Y %H:%M", localtime(mktime(end_time)+19800))  ,"Platform":"HACKERRANK"  })
+
+
+cur_time = str(int(mktime(localtime())*1000))
+page = requests.get("https://www.hackerrank.com/rest/contests/college?offset=0&limit=50&_="+cur_time)
+data = page.json()["models"]
+for item in data:
+    if not item["ended"] and ("https://www.hackerrank.com/"+item["slug"]) not in hackerrank_contests["urls"]:
+        start_time = strptime(item["get_starttimeiso"], "%Y-%m-%dT%H:%M:%SZ")
+        end_time = strptime(item["get_endtimeiso"], "%Y-%m-%dT%H:%M:%SZ")
+        duration = get_duration(int(( mktime(end_time)-mktime(start_time) )/60 ))
+        if not item["started"]:
+            hackerrank_contests["urls"].append("https://www.hackerrank.com/"+item["slug"])
+            resultSet["upcoming_contests"].append({ "Name" :  item["name"] , "url" : "https://www.hackerrank.com/"+item["slug"] , "StartTime" :  strftime("%a, %d %b %Y %H:%M", localtime(mktime(start_time)+19800)),"EndTime" : strftime("%a, %d %b %Y %H:%M", localtime(mktime(end_time)+19800)),"Duration":duration,"Platform":"HACKERRANK"  })
+        elif   item["started"]:
+            hackerrank_contests["urls"].append("https://www.hackerrank.com/"+item["slug"])
+            resultSet["present_contests"].append({  "Name" :  item["name"] , "url" : "https://www.hackerrank.com/"+item["slug"]  , "EndTime"   : strftime("%a, %d %b %Y %H:%M", localtime(mktime(end_time)+19800))  ,"Platform":"HACKERRANK"  })
 
 
 resultSet["upcoming_contests"] = sorted(resultSet["upcoming_contests"], key=lambda k: strptime(k['StartTime'], "%a, %d %b %Y %H:%M"))
