@@ -27,6 +27,9 @@ def get_duration(duration):
     if minutes!=0:ans+=str(minutes)+"m"
     return ans.strip()
 
+
+# CodeChef Contest Fetching
+
 page = requests.get("http://www.codechef.com/contests").text
 soup = BeautifulSoup(page, "html.parser")
 
@@ -58,8 +61,36 @@ for present_contest in contest_tables["Present Contests"]:
                              "Platform": "CODECHEF"})
 
 
+# HackerEarth Contest Fetching
+
+cur_time = localtime()
+ref_date =  strftime("%Y-%m-%d",  localtime(mktime(localtime())   - 432000))
+duplicate_check=[]
+
+page = requests.get("https://www.hackerearth.com/chrome-extension/events/")
+data = json.load(page)["response"]
+for item in data:
+    start_time = strptime(item["start_tz"].strip()[:19], "%Y-%m-%d %H:%M:%S")
+    end_time = strptime(item["end_tz"].strip()[:19], "%Y-%m-%d %H:%M:%S")
+    duration = get_duration(int(( mktime(end_time)-mktime(start_time) )/60 ))
+    duplicate_check.append(item["title"].strip())
+
+    if item["challenge_type"]=='hiring':challenge_type = 'hiring'
+    else: challenge_type = 'contest'
+
+    if item["status"].strip()=="UPCOMING":
+        resultSet["upcoming_contests"].append({ "Name" :  item["title"].strip()  , "url" : item["url"].strip() , "StartTime" : strftime("%a, %d %b %Y %H:%M", start_time),"EndTime" : strftime("%a, %d %b %Y %H:%M", end_time),"Duration":duration,"Platform":"HACKEREARTH","challenge_type": challenge_type  })
+    elif item["status"].strip()=="ONGOING":
+        resultSet["present_contests"].append({ "Name" :  item["title"].strip()  , "url" : item["url"].strip() , "EndTime" : strftime("%a, %d %b %Y %H:%M", end_time),"Platform":"HACKEREARTH","challenge_type": challenge_type  })
+
+
+
 resultSet["upcoming_contests"] = sorted(resultSet["upcoming_contests"], key=lambda k: strptime(k['StartTime'], "%a, %d %b %Y %H:%M"))
 resultSet["present_contests"] = sorted(resultSet["present_contests"], key=lambda k: strptime(k['EndTime'], "%a, %d %b %Y %H:%M"))
+
+
+
+
 
 class TodoSimple(Resource):
     def get(self):
