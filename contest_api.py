@@ -68,7 +68,7 @@ ref_date =  strftime("%Y-%m-%d",  localtime(mktime(localtime())   - 432000))
 duplicate_check=[]
 
 page = requests.get("https://www.hackerearth.com/chrome-extension/events/")
-data = json.load(page)["response"]
+data = page.json()["response"]
 for item in data:
     start_time = strptime(item["start_tz"].strip()[:19], "%Y-%m-%d %H:%M:%S")
     end_time = strptime(item["end_tz"].strip()[:19], "%Y-%m-%d %H:%M:%S")
