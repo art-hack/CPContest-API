@@ -1,7 +1,7 @@
 from flask import Flask, request
 from flask_restful import Resource, Api
 from bs4 import BeautifulSoup
-import urllib2
+from urllib2 import urlopen,Request
 import json
 import os
 
