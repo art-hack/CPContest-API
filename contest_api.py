@@ -1,7 +1,7 @@
 from flask import Flask, request
 from flask_restful import Resource, Api
 from bs4 import BeautifulSoup
-from urllib2 import urlopen,Request
+import requests
 from time import strptime,strftime,mktime,gmtime,localtime
 import json
 import os
@@ -14,8 +14,20 @@ api = Api(app)
 result = []
 resultSet = {"present_contests":[],"upcoming_contests":[]}
 
+def get_duration(duration):
+    days = duration/(60*24)
+    duration %= 60*24
+    hours = duration/60
+    duration %= 60
+    minutes = duration
+    ans=""
+    if days==1: ans+=str(days)+" day "
+    elif days!=0: ans+=str(days)+" days "
+    if hours!=0:ans+=str(hours)+"h "
+    if minutes!=0:ans+=str(minutes)+"m"
+    return ans.strip()
 
-page = urllib2.urlopen("http://www.codechef.com/contests")
+page = requests.get("http://www.codechef.com/contests").text
 soup = BeautifulSoup(page, "html.parser")
 
 statusdiv = soup.findAll("table", attrs = {"class": "dataTable"})
@@ -47,7 +59,7 @@ for present_contest in contest_tables["Present Contests"]:
 
 
 resultSet["upcoming_contests"] = sorted(resultSet["upcoming_contests"], key=lambda k: strptime(k['StartTime'], "%a, %d %b %Y %H:%M"))
-resultSet["present_contests"] = sorted(resultSet["upcoming_contests"], key=lambda k: strptime(k['EndTime'], "%a, %d %b %Y %H:%M"))
+resultSet["present_contests"] = sorted(resultSet["present_contests"], key=lambda k: strptime(k['EndTime'], "%a, %d %b %Y %H:%M"))
 
 class TodoSimple(Resource):
     def get(self):
