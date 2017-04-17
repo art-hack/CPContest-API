@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 from flask import Flask, request
 from flask_restful import Resource, Api
 from bs4 import BeautifulSoup
@@ -82,6 +84,25 @@ for item in data:
         resultSet["upcoming_contests"].append({ "Name" :  item["title"].strip()  , "url" : item["url"].strip() , "StartTime" : strftime("%a, %d %b %Y %H:%M", start_time),"EndTime" : strftime("%a, %d %b %Y %H:%M", end_time),"Duration":duration,"Platform":"HACKEREARTH","challenge_type": challenge_type  })
     elif item["status"].strip()=="ONGOING":
         resultSet["present_contests"].append({ "Name" :  item["title"].strip()  , "url" : item["url"].strip() , "EndTime" : strftime("%a, %d %b %Y %H:%M", end_time),"Platform":"HACKEREARTH","challenge_type": challenge_type  })
+
+
+
+# CodeForces contest Fetching
+
+page = requests.get("http://codeforces.com/api/contest.list")
+data = page.json()["result"]
+for item in data:
+
+    if item["phase"]=="FINISHED": break
+
+    start_time = strftime("%a, %d %b %Y %H:%M",gmtime(item["startTimeSeconds"]+19800))
+    end_time   = strftime("%a, %d %b %Y %H:%M",gmtime(item["durationSeconds"]+item["startTimeSeconds"]+19800))
+    duration = get_duration( item["durationSeconds"]/60 )
+
+    if item["phase"].strip()=="BEFORE":
+        resultSet["upcoming_contests"].append({ "Name" :  item["name"] , "url" : "http://codeforces.com/contest/"+str(item["id"]) , "StartTime" :  start_time,"EndTime" : end_time,"Duration":duration,"Platform":"CODEFORCES"  })
+    else:
+        resultSet["present_contests"].append({  "Name" :  item["name"] , "url" : "http://codeforces.com/contest/"+str(item["id"])  , "EndTime"   : end_time  ,"Platform":"CODEFORCES"  })
 
 
 
