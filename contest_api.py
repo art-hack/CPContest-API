@@ -15,7 +15,7 @@ result = []
 resultSet = {"present_contests":[],"upcoming_contests":[]}
 
 
-page = urlopen("http://www.codechef.com/contests")
+page = urllib2.urlopen("http://www.codechef.com/contests")
 soup = BeautifulSoup(page, "html.parser")
 
 statusdiv = soup.findAll("table", attrs = {"class": "dataTable"})
